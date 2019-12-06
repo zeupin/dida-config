@@ -1,6 +1,6 @@
 # Dida\Config 组件库
 
-`Dida\Config` 是一个 App 配置组件，可以方便地对 App 的配置项进行各种高级设置。它是 [宙品科技](http://zeupin.com) 开源的 [Dida 框架](http://dida.zeupin.com) 的一个功能组件。
+`Dida\Config` 是一个配置组件，可以方便地对 App 的配置项进行各种操作。它是 [宙品科技](http://zeupin.com) 开源的 [Dida 框架](http://dida.zeupin.com) 的一个功能组件。
 
 - Home <https://github.com/zeupin/dida-config>
 
@@ -21,23 +21,57 @@
 - `groupClear($group)` -- 删除指定 group 的所有配置项。
 - `load($filepath, $group = null)` -- 从文件中载入配置。
 
-## 说明
+## 使用说明
 
-1. 一个load()可以读取的配置文件如下：
-```php
-<?php
-return [
+1. 一个 `load()` 可以读取的配置文件示例：
 
-];
-```
+   ```php
+   <?php
+   return [
+       "foo"            => 1,
+       "bar"            => 2,
+       "mysql.host"     => "localhost",
+       "mysql.user"     => "root",
+       "mysql.password" => "password",
+   ];
+   ```
 
-1. `groupExpand()` 和 `groupPack()` 是逆过程：
+1. `merge()` 调用的是 `array_merge()` 函数。
+
+   ```php
+   $confA = ["db.user"=>'root', "a"=>1, "b"=>2];
+
+   Config::merge($confA);
+
+   // 运行后，结果如下：
+   // Config::$items = [
+   //   "db.user" => 'root',
+   //   "a" => 1,
+   //   "b" => 2,
+   // ]
+
+   $confB = ["a"=>9, "c"=>3];
+
+   Config::merge($confB);
+
+   // 运行后，结果如下：
+   // Config::$items = [
+   //   "db.user" => 'root',
+   //   "a" => 9,
+   //   "b" => 2,
+   //   "c" => 3,
+   // ]
+   ```
+
+1. `groupExpand()` 和 `groupPack()` 是一对逆过程：
 
    ```php
    $confA = [""=>0, "a"=>1, "b"=>2, "c"=>3];
 
+   // 将$confA扩展到db组里面
    Config::groupExpand("db", $confA);
 
+   // 运行后，结果如下：
    // Config::$items = [
    //   "db" => 0,
    //   "db.a" => 1,
@@ -45,8 +79,10 @@ return [
    //   "db.c" => 3,
    // ]
 
+   // 把db组的所有配置项打包出来
    $confB = Config::groupPack("db");
 
+   // 运行后，结果如下：
    // $confB = [""=>0, "a"=>1, "b"=>2, "c"=>3]
    ```
 
